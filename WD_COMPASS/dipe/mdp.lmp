@@ -1,0 +1,91 @@
+### Variables ###
+
+variable T index 303.15
+variable rho equal 713.113
+
+variable n_repl_x equal 10
+variable n_repl_y equal 10
+variable n_repl_z equal 5
+
+variable run_steps index 100000
+variable time_step index 1
+
+variable r_cut index 6.0
+variable r_skin index 2.0
+variable n_delay index 0
+variable n_every index 1
+variable k_accuracy index 1.0e-4
+variable seed index 873436
+variable lang_force index 100
+
+variable thermo_step index 1000
+variable ave_nevery index 1
+variable ave_nrepeat index 500
+variable ave_nfreq index 500
+
+variable log_file index log.txt
+variable data_file index data.txt
+variable restart_file index rst.lmp
+
+# const
+variable koef1 equal 55.36276131
+
+### Commands ###
+log ${log_file}
+
+print ""
+print "Starting deforming run. T = ${T} K"
+print ""
+
+units                  real
+boundary               p p p
+atom_style             full
+
+pair_style      lj/class2/coul/long ${r_cut}
+pair_modify     tail yes mix sixthpower
+#suffix          off
+kspace_style    pppm ${k_accuracy}
+#suffix          on
+special_bonds   lj/coul 0.0 0.0 1.0 dihedral yes
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+
+read_data ../mol_data/DIPE.mol.lmp
+replicate ${n_repl_x} ${n_repl_y} ${n_repl_z}
+
+neighbor        ${r_skin} bin
+neigh_modify    delay ${n_delay} every ${n_every} check yes
+
+
+velocity        all create ${T} ${seed} loop geom mom yes rot yes
+
+timestep  ${time_step}
+
+thermo_style custom step time etotal temp vol density press
+thermo    ${thermo_step}
+
+variable E equal etotal
+variable Pres equal press
+variable Temp equal temp
+variable Dens equal density
+fix data1 all ave/time ${ave_nevery} ${ave_nrepeat} ${ave_nfreq} v_E v_Temp v_Pres v_Dens file ${data_file}
+
+# Compression run
+
+variable Lx equal "v_n_repl_x/v_rho^(1.0/3.0)*v_koef1"
+variable Ly equal "v_n_repl_y/v_rho^(1.0/3.0)*v_koef1"
+variable Lz equal "v_n_repl_z/v_rho^(1.0/3.0)*v_koef1"
+fix def1 all deform 1 x final 0 ${Lx} y final 0 ${Ly} z final 0 ${Lz}
+fix lang1 all langevin ${T} ${T} ${lang_force} ${seed}
+fix nve1 all nve
+
+run ${run_steps}
+
+unfix def1
+unfix lang1
+unfix nve1
+unfix data1
+
+write_data ${restart_file}

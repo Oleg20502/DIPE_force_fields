@@ -1,0 +1,105 @@
+### Variables ###
+variable I index 16
+variable iter uloop 8
+
+variable run_visc_steps index 2000000
+variable dt equal 1
+
+variable T equal 303.15
+variable tdamp index 400
+
+variable r_cut index 12.0
+variable r_skin index 2.0
+variable n_delay index 0
+variable n_every index 1
+variable k_accuracy index 1.0e-4
+
+variable n_save_press index 1
+variable thermo_step index 1000
+variable ave_nevery index 1
+variable ave_nrepeat index 1000
+variable ave_nfreq index 1000
+
+variable log_dir index logs
+shell mkdir ${log_dir}
+variable data_dir index data
+shell mkdir ${data_dir}
+variable rst_dir index rst
+shell mkdir ${rst_dir}
+variable press_ab_dir index press_ab
+shell mkdir ${press_ab_dir}
+
+variable read_rst_file index rst/rst.$(v_I+v_iter-8).lmp
+variable log_file index log.$(v_I+v_iter).txt
+variable data_file index data.$(v_I+v_iter).txt
+variable press_ab_file index $(v_I+v_iter).txt
+variable rst_file index rst.$(v_I+v_iter).lmp
+
+### Commands ###
+log ${log_dir}/${log_file}
+
+print ""
+print "Starting viscosity computation run. T = ${T} K, P = 1 bar."
+print ""
+
+units                  real
+boundary               p p p
+atom_style             full
+
+pair_style      lj/class2/coul/long ${r_cut}
+pair_modify     tail yes mix sixthpower
+#suffix          off
+kspace_style    pppm ${k_accuracy}
+#suffix          on
+special_bonds   lj/coul 0.0 0.0 1.0 dihedral yes
+bond_style      class2
+angle_style     class2
+dihedral_style  class2
+improper_style  class2
+
+neighbor      ${r_skin} bin
+neigh_modify  delay ${n_delay} every ${n_every} check yes
+
+
+read_data ${read_rst_file}
+
+reset_timestep 0
+timestep  ${dt}
+
+thermo_style custom step time etotal temp press
+thermo    ${thermo_step}
+
+# Calculating converting factor
+variable    V equal vol
+variable    kB equal 1.3806504e-23    # [J/K] Boltzmann
+variable    atm2Pa equal 101325.0
+variable    A2m equal 1.0e-10
+variable    fs2s equal 1.0e-15
+variable    convert equal ${atm2Pa}*${atm2Pa}*${fs2s}*${A2m}*${A2m}*${A2m}
+variable    scale equal 1000*${convert}/(${kB}*$T)*$V*${n_save_press}*${dt}
+print ""
+print       "Converting factor to mPa*s: ${scale}"
+print ""
+
+
+# NVT visc
+fix nvt1 all nvt temp ${T} ${T} ${tdamp}
+
+variable    pxy equal pxy
+variable    pxz equal pxz
+variable    pyz equal pyz
+fix  print1 all print ${n_save_press} "${pxy} ${pxz} ${pyz}" file ${press_ab_dir}/${press_ab_file} screen no
+
+variable E equal etotal
+variable Pres equal press
+variable Temp equal temp
+fix data1 all ave/time ${ave_nevery} ${ave_nrepeat} ${ave_nfreq} v_E v_Temp v_Pres file ${data_dir}/${data_file}
+
+run ${run_visc_steps}
+
+unfix print1
+unfix data1
+unfix nvt1
+
+write_data ${rst_dir}/${rst_file}
+

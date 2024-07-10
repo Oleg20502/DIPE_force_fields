@@ -1,0 +1,40 @@
+LAMMPS (23 Jun 2022 - Update 2)
+OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:98)
+  using 1 OpenMP thread(s) per MPI task
+package gpu 0
+package gpu 1
+### Variables ###
+
+variable T index 303.15
+variable rho equal 713.113
+
+variable n_repl_x equal 10
+variable n_repl_y equal 10
+variable n_repl_z equal 5
+
+variable run_steps index 100000
+variable time_step index 1
+
+variable r_cut index 6.0
+variable r_skin index 2.0
+variable n_delay index 0
+variable n_every index 1
+variable k_accuracy index 1.0e-4
+variable seed index 873436
+variable lang_force index 100
+
+variable thermo_step index 1000
+variable ave_nevery index 1
+variable ave_nrepeat index 500
+variable ave_nfreq index 500
+
+variable log_file index log.txt
+variable data_file index data.txt
+variable restart_file index rst.lmp
+
+# const
+variable koef1 equal 55.36276131
+
+### Commands ###
+log ${log_file}
+log log.txt

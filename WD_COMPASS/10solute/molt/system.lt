@@ -1,0 +1,27 @@
+
+import "../../mol_data/h2o.lt" 
+import "../../mol_data/dipe.lt"
+
+
+# Periodic boundary conditions:
+write_once("Data Boundary") {
+   0.0  81  xlo xhi
+   0.0  211  ylo yhi
+   0.0  211  zlo zhi
+}
+
+water1 = new H2O [70].move(0.00, 0.00, 3)
+                 [70].move(0.00, 3, 0.00)
+                 [7].move(3, 0.00, 0.00)
+
+dipe = new DIPE [30].move(0, 0, 7)
+                [35].move(0, 6, 0)
+                [6].move(6.5, 0, 0)
+
+water2 = new H2O [70].move(0.00, 0.00, 3)
+                 [70].move(0.00, 3, 0.00)
+                 [7].move(3, 0.00, 0.00)
+
+
+dipe[*][*][*].move(25, 0, 0)
+water2[*][*][*].move(60, 0, 0)

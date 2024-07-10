@@ -1,0 +1,50 @@
+H2O {
+
+  ### LAMMPS commands for initialization
+  ### (These can be overridden later.)
+
+
+  write_once("In Init") {
+    atom_style full
+  }
+
+  write_once("In Settings") {
+    pair_coeff @atom:O @atom:O 0.080000 3.840000
+    pair_coeff @atom:H @atom:H 0.008000 1.087000
+  }
+
+  write_once("In Settings") {
+    bond_coeff @bond:type1 0.957200 552.000000 -1276.000000 1787.000000
+  }
+
+  write_once("In Settings") {
+    angle_coeff @angle:type1 104.520000 46.650000 -11.700000 -8.790000
+    angle_coeff @angle:type1 bb 0.000000 0.957200 0.957200
+    angle_coeff @angle:type1 ba 0.000000 0.000000 0.957200 0.957200
+  }
+
+
+  ### DATA sections
+
+
+  write_once("Data Masses") {
+    @atom:O 15.999000
+    @atom:H 1.008000
+  }
+
+  write("Data Atoms") {
+    $atom:O $mol:m1 @atom:O -0.820000 0.551 0.001 0.246
+    $atom:H_1 $mol:m1 @atom:H 0.410000 0.010 0.766 0.387
+    $atom:H_2 $mol:m1 @atom:H 0.410000 1.414 0.321 0.031
+  }
+
+  write("Data Bonds") {
+    $bond:id1 @bond:type1 $atom:O $atom:H_1
+    $bond:id2 @bond:type1 $atom:O $atom:H_2
+  }
+
+  write("Data Angles") {
+    $angle:id1 @angle:type1 $atom:H_1 $atom:O $atom:H_2
+  }
+
+} # end of "H2O" type definition

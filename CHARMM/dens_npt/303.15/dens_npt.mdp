@@ -1,0 +1,48 @@
+; Run control
+integrator               = md
+dt                       = 0.001
+nsteps                   = 500000
+; Output control
+nstxout                  = 1000
+nstvout                  = 1000
+nstfout                  = 0
+nstlog                   = 500
+nstenergy                = 100
+nstxout-compressed       = 0
+;
+; Neighborsearching and short-range nonbonded interactions
+cutoff-scheme            = Verlet
+nstlist                  = 10
+pbc                      = xyz
+rlist                    = 1.2
+; Electrostatics
+coulombtype              = PME
+rcoulomb                 = 1.2
+fourierspacing           = 0.12
+pme-order                = 4
+; van der Waals
+vdwtype                  = cutoff
+vdw-modifier             = force-switch
+rvdw-switch              = 1.0
+rvdw                     = 1.2
+DispCorr                 = no
+;
+; Temperature coupling
+tcoupl                   = nose-hoover
+tc_grps                  = system
+tau_t                    = 4.0
+ref_t = 303.15 ; #############
+; Pressure coupling is on for NPT
+Pcoupl                   = Parrinello-Rahman
+tau_p                    = 5.0
+ref_p                    = 1.0
+pcoupltype               = isotropic
+compressibility          = 1e-4
+refcoord-scaling         = all
+;
+; Generate velocities to start
+gen_vel                  = no
+continuation             = yes
+constraints              = h-bonds
+constraint-algorithm     = lincs
+lincs-order              = 4

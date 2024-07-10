@@ -1,0 +1,6 @@
+#!/bin/bash
+#SBATCH --job-name="DefWa"
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=4
+
+prun lmp -sf gpu -pk gpu 1 -in mdp.lmp >> out.txt

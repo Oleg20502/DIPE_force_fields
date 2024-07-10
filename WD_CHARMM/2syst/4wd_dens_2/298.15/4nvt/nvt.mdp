@@ -1,0 +1,43 @@
+; Run control
+integrator               = md       ; Langevin dynamics
+dt                       = 0.001
+nsteps                   = 2000000
+; Output control
+nstxout                  = 0
+nstvout                  = 0
+nstfout                  = 0
+nstlog                   = 2000
+nstenergy                = 5
+nstxout-compressed       = 2000
+;
+; Neighborsearching and short-range nonbonded interactions
+cutoff-scheme            = Verlet
+nstlist                  = 10
+pbc                      = xyz
+rlist                    = 1.2
+; Electrostatics
+coulombtype              = PME
+rcoulomb                 = 1.2
+fourierspacing           = 0.12
+pme-order                = 4
+; van der Waals
+vdwtype                  = cutoff
+vdw-modifier             = force-switch
+rvdw-switch              = 1.0
+rvdw                     = 1.2
+DispCorr                 = no
+;
+; Temperature coupling
+tcoupl                   = nose-hoover
+tc_grps                  = system
+tau_t                    = 2.0
+ref_t = 298.15
+; Pressure coupling is off for NVT
+Pcoupl                   = No
+;
+; Generate velocities to start
+gen_vel                  = no
+continuation             = yes
+constraints              = h-bonds
+constraint-algorithm     = lincs
+lincs-order              = 4
